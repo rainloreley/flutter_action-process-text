@@ -3,33 +3,30 @@ package com.example.action_process_text
 import androidx.annotation.NonNull
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.android.FlutterActivity
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 
-/** APlugin */
-class ActionProcessTextPlugin: FlutterPlugin, MethodCallHandler {
-  /// The MethodChannel that will the communication between Flutter and native Android
-  ///
-  /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-  /// when the Flutter Engine is detached from the Activity
-  private lateinit var channel : MethodChannel
+/** ActionProcessTextPlugin */
+class ActionProcessTextPlugin: FlutterPlugin, MethodCallHandler, FlutterActivity {
+  companion object {
+    @JvmStatic
+    fun registerWith(registrarFor: PluginRegistry.Registrar) {
 
-  override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.binaryMessenger, "a")
-    channel.setMethodCallHandler(this)
-  }
-
-  override fun onMethodCall(call: MethodCall, result: Result) {
-    if (call.method == "getPlatformVersion") {
-      result.success("Android ${android.os.Build.VERSION.RELEASE}")
-    } else {
-      result.notImplemented()
     }
+
+    const val CHANNEL = "action_process_text"
   }
 
-  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-    channel.setMethodCallHandler(null)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    val channel = MethodChannel(flutterView, CHANNEL)
+    if (intent.action == Intent.ACTION_PROCESS_TEXT) {
+      val selectedText = intent.getStringExtra(Intent.EXTRA_PROCESS_TEXT) ?: ""
+      channel.invokeMethod("copiedText", selectedText)
+    }
+
   }
 }

@@ -1,3 +1,1 @@
-package android
-
-rootProject.name = 'a'
+rootProject.name = 'action_process_text_plugin'
